@@ -7,7 +7,7 @@ pipeline {
             
             parameters {
             string(name: 'ApplicationScope', defaultValue: 'CARDMRIITInitiatives', description: 'Comma-separated list of LifeTime applications to deploy.')
-            string(name: 'ApplicationScopeWithTests', defaultValue: 'TestApp', description: 'Comma-separated list of LifeTime applications to deploy (including test applications)')
+            string(name: 'ApplicationScopeWithTests', defaultValue: 'CARDMRIITInitiatives', description: 'Comma-separated list of LifeTime applications to deploy (including test applications)')
             string(name: 'TriggeredBy', defaultValue: 'N/A', description: 'Name of LifeTime user that triggered the pipeline remotely.')
           }
           
