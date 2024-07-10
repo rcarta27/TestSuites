@@ -14,6 +14,8 @@ pipeline {
         options { skipStagesAfterUnstable() }
             
             environment {
+                DevelopmentEnvironment = 'https://cmiti-dev.outsystemsenterprise.com/'
+                NonProductionEnvironment = 'https://cmiti-tst.outsystemsenterprise.com/'
                 ArtifactsFolder = "Artifacts"
                 LifeTimeHostname = 'https://cmiti-lt.outsystemsenterprise.com/'
                 LifeTimeAPIVersion = '2'
@@ -51,25 +53,15 @@ pipeline {
                 withPythonEnv('python3') {
                     echo "Pipeline run triggered remotely by '${params.TriggeredBy}' for the following applications (including tests): '${params.ApplicationScopeWithTests}'"
                     sh script: "python3 -m outsystems.pipeline.fetch_lifetime_data --artifacts \"${env.ArtifactsFolder}\" --lt_url ${env.LifeTimeHostname} --lt_token ${env.AuthorizationToken} --lt_api_version ${env.LifeTimeAPIVersion}", label: 'Retrieve list of Environments and Applications'
+                    // Deploy the application list, with tests, to the Regression environment
+                      lock('deployment-plan-REG') {
+                        sh script: "python3 -m outsystems.pipeline.deploy_latest_tags_to_target_env --artifacts \"${env.ArtifactsFolder}\" --lt_url ${env.LifeTimeHostname} --lt_token ${env.AuthorizationToken} --lt_api_version ${env.LifeTimeAPIVersion} --source_env \"${env.DevelopmentEnvironment}\" --destination_env \"${env.NonProductionEnvironment}\" --app_list \"${params.ApplicationScopeWithTests}\"", label: "Deploy latest application tags (including tests) to ${env.NonProductionEnvironment}"
+                        }
                     }
                 }
             }
         }
-        stage('Test') {
-            agent any
-            steps {
-                git credentialsId: 'GitHub-Private-Repo', url: 'https://github.com/rcarta27/cmiti.git'
-                dir('/var/jenkins_home/workspace/cmiti-outsystems'){
-                sh 'docker run -t --rm -v "$(pwd)":/tmp/project katalonstudio/katalon katalonc.sh -projectPath=/tmp/project -retry=0 -testSuitePath="Test Suites/CAS Oustsystem" -browserType="Firefox" -executionProfile="default" -apiKey="3a49462b-9ba8-42b2-8dbe-57a293463e5e"'  
-                }
-            }
-            post{
-            always{
-                archiveArtifacts artifacts: 'Reports/**/*.*', fingerprint: true
-                junit 'Reports/*/Utilities/*/*.xml'
-                }
-            }
-        }
+       
         stage('Accept changes') {
           steps {
             milestone(ordinal: 40, label: 'before-approval')
