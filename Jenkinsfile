@@ -23,10 +23,7 @@ pipeline {
                 OSPackageVersion = '0.9.0'
             }
   
-  triggers {
-        pollSCM '* * * * *'
-    }
-
+ 
     stages {
         stage('Install Python Dependencies') {
             steps {
