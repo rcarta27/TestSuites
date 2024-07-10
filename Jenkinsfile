@@ -14,13 +14,13 @@ pipeline {
         options { skipStagesAfterUnstable() }
             
             environment {
-                DevelopmentEnvironment = 'https://cmiti-dev.outsystemsenterprise.com/'
-                NonProductionEnvironment = 'https://cmiti-tst.outsystemsenterprise.com/'
+                DevelopmentEnvironment = 'Development'
+                NonProductionEnvironment = 'Non-Production'
                 ArtifactsFolder = "Artifacts"
                 LifeTimeHostname = 'https://cmiti-lt.outsystemsenterprise.com/'
                 LifeTimeAPIVersion = '2'
                 AuthorizationToken = credentials('LifeTimeServiceAccountToken')
-                OSPackageVersion = '0.6.0'
+                OSPackageVersion = '0.9.0'
             }
   
   triggers {
