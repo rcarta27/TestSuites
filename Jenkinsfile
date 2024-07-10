@@ -21,7 +21,7 @@ pipeline {
                 LifeTimeAPIVersion = '2'
                 AuthorizationToken = credentials('LifeTimeServiceAccountToken')
                 OSPackageVersion = '0.9.0'
-                BddEnvironmentURL = 'https://cmiti-dev.outsystemsenterprise.com/'
+                BddEnvironmentURL = 'https://cmiti-dev.outsystemsenterprise.com/BDDFramework/rest/v1/BDDTestRunner/TestApp/HomeScreen'
             }
   
  
@@ -68,7 +68,7 @@ pipeline {
                   steps {
                     withPythonEnv('python3') {
                       // Generate the URL endpoints of the BDD tests
-                      sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" --app_list \"${params.ApplicationScopeWithTests}\" --bdd_framework_env ${env.BddEnvironmentURL}", label: 'Generate URL endpoints for BDD test suites'
+                      sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" --bdd_framework_env ${env.BddEnvironmentURL}", label: 'Generate URL endpoints for BDD test suites'
                       // Run those tests and generate a JUnit test report
                       sh script: "python3 -m outsystems.pipeline.evaluate_test_results --artifacts \"${env.ArtifactsFolder}\"", returnStatus: true, label: 'Run BDD test suites and generate JUnit test report'          
                     }
