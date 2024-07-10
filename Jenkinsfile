@@ -20,6 +20,7 @@ pipeline {
                 LifeTimeHostname = 'https://cmiti-lt.outsystemsenterprise.com/'
                 LifeTimeAPIVersion = '2'
                 AuthorizationToken = credentials('LifeTimeServiceAccountToken')
+                BddEnvironmentURL = 'https://cmiti-dev.outsystemsenterprise.com/'
                 OSPackageVersion = '0.9.0'
             }
   
@@ -65,13 +66,13 @@ pipeline {
                 expression { return params.ApplicationScope != params.ApplicationScopeWithTests }
               }
                   steps {
-                    withPythonEnv('python3') {
-                      // Generate the URL endpoints of the BDD tests
-                      sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" https://cmiti-dev.outsystemsenterprise.com/BDDFramework/rest/v1/BDDTestRunner/TestApp/HomeScreen", label: 'Generate URL endpoints for BDD test suites'
-                      // Run those tests and generate a JUnit test report
-                      sh script: "python3 -m outsystems.pipeline.evaluate_test_results --artifacts \"${env.ArtifactsFolder}\"", returnStatus: true, label: 'Run BDD test suites and generate JUnit test report'          
-                    }
-                  }
+                        withPythonEnv('python3') {
+                          // Generate the URL endpoints of the BDD tests
+                          sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" --app_list \"${params.ApplicationScopeWithTests}\" --bdd_framework_env ${env.BddEnvironmentURL}", label: 'Generate URL endpoints for BDD test suites'
+                          // Run those tests and generate a JUnit test report
+                          sh script: "python3 -m outsystems.pipeline.evaluate_test_results --artifacts \"${env.ArtifactsFolder}\"", returnStatus: true, label: 'Run BDD test suites and generate JUnit test report'          
+                        }
+                      }
                       post {
                         always {
                           // Publish results in JUnit test report
@@ -79,17 +80,7 @@ pipeline {
                         }
                       }
                     }
-                        stage('Deploy Acceptance') {
-                          steps {     
-                            withPythonEnv('python3') {
-                              // Deploy the application list to the Acceptance environment
-                              lock('deployment-plan-ACC') {
-                                sh script: "python3 -m outsystems.pipeline.deploy_latest_tags_to_target_env --artifacts \"${env.ArtifactsFolder}\" --lt_url ${env.LifeTimeHostname} --lt_token ${env.AuthorizationToken} --lt_api_version ${env.LifeTimeAPIVersion} --source_env \"${env.RegressionEnvironment}\" --destination_env \"${env.AcceptanceEnvironment}\" --app_list \"${params.ApplicationScope}\" --manifest \"${env.ArtifactsFolder}/deployment_data/deployment_manifest.cache\"", label: "Deploy latest application tags to ${env.AcceptanceEnvironment}"
-                              }
-                            }        
-                          }
-                        }
-       
+        
         stage('Accept changes') {
           steps {
             milestone(ordinal: 40, label: 'before-approval')
