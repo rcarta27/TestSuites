@@ -14,8 +14,8 @@ pipeline {
         options { skipStagesAfterUnstable() }
             
             environment {
-                DevelopmentEnvironment = 'Development'
-                NonProductionEnvironment = 'Non-Production'
+                DevelopmentEnvironment = 'development environment # 1'
+                NonProductionEnvironment = 'non-production environment # 2'
                 ArtifactsFolder = "Artifacts"
                 LifeTimeHostname = 'https://cmiti-lt.outsystemsenterprise.com/'
                 LifeTimeAPIVersion = '2'
