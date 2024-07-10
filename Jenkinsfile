@@ -67,7 +67,7 @@ pipeline {
                  steps {
                         withPythonEnv('python3') {
                           // Generate the URL endpoints of the BDD tests
-                          sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" --app_list \"${params.ApplicationScopeWithTests}\" --cicd_probe_env ${'https://cmiti-dev.outsystemsenterprise.com/BDDFramework/rest/v1/BDDTestRunner/TestApp/HomeScreen'} --bdd_framework_env ${'https://cmiti-dev.outsystemsenterprise.com/BDDFramework/rest/v1/BDDTestRunner/TestApp/HomeScreen'}", label: 'Generate URL endpoints for BDD test suites'
+                          sh script: "python3 -m outsystems.pipeline.generate_unit_testing_assembly --artifacts \"${env.ArtifactsFolder}\" --app_list \"${params.ApplicationScopeWithTests}\" --cicd_probe_env ${'https://cmiti-dev.outsystemsenterprise.com/'} --bdd_framework_env ${'https://cmiti-dev.outsystemsenterprise.com/'}", label: 'Generate URL endpoints for BDD test suites'
                           // Run those tests and generate a JUnit test report
                           sh script: "python3 -m outsystems.pipeline.evaluate_test_results --artifacts \"${env.ArtifactsFolder}\"", returnStatus: true, label: 'Run BDD test suites and generate JUnit test report'          
                         }
